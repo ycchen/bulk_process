@@ -59,6 +59,8 @@ class AuthorsController < ApplicationController
   # PATCH/PUT /authors/batch_update
   def batch_update
     result = Author.batch_update(request.raw_post)
+    logger.error "==============================="
+    logger.error "#{result.inspect}"
     if result[:success]
       render json: {success: result[:message]}, status: :ok
     else

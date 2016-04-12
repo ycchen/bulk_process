@@ -121,7 +121,7 @@ RSpec.describe "Authors", type: :request do
   		author["data"] = []
   		for i in 1..10 do
   			FactoryGirl.create :author, name: FFaker::Name.name, phone: FFaker::PhoneNumber.phone_number
-  			author["data"].push({type: "authors", id: i, attributes: {name: FFaker::Name.name, phone: FFaker::PhoneNumber.phone_number}})
+  			author["data"].push({type: "authors", id: i+1, attributes: {name: FFaker::Name.name, phone: FFaker::PhoneNumber.phone_number}})
   		end
 
   		put "/authors/batch_update", author.to_json, headers
@@ -130,6 +130,20 @@ RSpec.describe "Authors", type: :request do
   		puts body.inspect
 
   	end
+
+  	it "Failed PUT /authors/batch_update" do
+    	author = Hash.new
+    	author["data"]=[]
+    	10.times do |i|
+    		FactoryGirl.create :author, name: FFaker::Name.name, phone: FFaker::PhoneNumber.phone_number
+    		author["data"].push({type: "authors", id: i+1, attributes: {name: i.even? ? '' : FFaker::Name.name, phone: FFaker::PhoneNumber.phone_number}})
+    	end
+
+    	put "/authors/batch_update", author.to_json, headers
+    	puts response.status
+    	body = JSON.parse(response.body)
+    	puts body
+    end
   end
 
 end

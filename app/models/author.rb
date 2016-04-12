@@ -14,19 +14,27 @@ class Author < ActiveRecord::Base
 			end
 		else
 			result[:success] = false
-			result[:message] = "authors not created, because there are #{@invalid_data["data"].size} invalid data"
+			result[:message] = "authors not created, because there are #{@invalid_data["data"].size} invalid data: #{@invalid_data["data"]}"
 		end
 		return result
 	end
 
 	def self.batch_update(author_content)
-		Author.transaction do
-			body = JSON.parse(author_content)
-			body["data"].each_with_index do |author_hash, i|
-				author = Author.find(author_hash["id"])
-				author.update!(author_hash["attributes"]) if author
+		result={success: true, message: "authors updated"}
+
+		if data_validation(author_content)
+			Author.transaction do
+				body = JSON.parse(author_content)
+				body["data"].each_with_index do |author_hash, i|
+					author = Author.find(author_hash["id"])
+					author.update!(author_hash["attributes"]) if author
+				end
 			end
+		else
+			result[:success] = false
+			result[:message] = "authors not updated, because there are #{@invalid_data["data"].size} invalid data: #{@invalid_data["data"]}"
 		end
+		return result
 	end
 
 	def self.data_validation(author_content)
@@ -37,9 +45,7 @@ class Author < ActiveRecord::Base
     		author = Author.new(row_hash["attributes"])
     		@invalid_data["data"].push(row_hash) if !author.valid?
     	end
-    	# logger.error 8888888888888888888
-    	# logger.error "=========== #{@invalid_data["data"].inspect}"
-
+    	
     	return false if @invalid_data["data"].size > 0
 
     	return true

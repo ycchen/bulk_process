@@ -26,7 +26,7 @@ RSpec.describe "Authors", type: :request do
     it "Successful POST /authors/" do
       author={
         data: {
-          type: "authors",
+          type: "author",
           attributes:{
             name: who,
             phone: FFaker::PhoneNumber.phone_number
@@ -48,7 +48,7 @@ RSpec.describe "Authors", type: :request do
     it "Failed POST /authors/" do
     	author={
     		data: {
-    			type: "authors",
+    			type: "author",
     			attributes:{
     				name: ''
     			}
@@ -64,12 +64,12 @@ RSpec.describe "Authors", type: :request do
     it "Successful POST /authors/batch_create" do
     	author= Hash.new
     	author["data"] = []
-    	10.times do 
-    		author["data"].push({type: "authors", attributes: {name: FFaker::Name.name, phone: FFaker::PhoneNumber.phone_number}})
+    	10.times do |i|
+    		author["data"].push({type: "author", attributes: {name: FFaker::Name.name, phone: FFaker::PhoneNumber.phone_number}})
     	end
 
     	post "/authors/batch_create", author.to_json, headers
-    	puts response.status
+    	# puts response.status
     	body = JSON.parse(response.body)
     	puts body
     end
@@ -78,12 +78,12 @@ RSpec.describe "Authors", type: :request do
     	author = Hash.new
     	author["data"]=[]
     	10.times do |i|
-    		author["data"].push({type: "authors", attributes: {name: i.even? ? '' : FFaker::Name.name, phone: FFaker::PhoneNumber.phone_number}})
+    		author["data"].push({type: "author", attributes: {name: i >= 5 ? '' : FFaker::Name.name, phone: FFaker::PhoneNumber.phone_number}})
     	end
 
-    	puts author["data"].inspect
+    	# puts author["data"].inspect
     	post "/authors/batch_create", author.to_json, headers
-    	puts response.status
+    	puts "response.status = #{response.status}"
     	body = JSON.parse(response.body)
     	puts body
     end
@@ -97,7 +97,7 @@ RSpec.describe "Authors", type: :request do
   		# FactoryGirl.create :author, name:who, phone: phone, id: 1
   		author = {
   			data: {
-  				type: "authors",
+  				type: "author",
   				id: 1,
   				attributes:{
   					name: new_name,
@@ -119,9 +119,9 @@ RSpec.describe "Authors", type: :request do
   	it "PUT /authors/batch_update" do
   		author = Hash.new
   		author["data"] = []
-  		for i in 1..10 do
+  		10.times do |i|
   			FactoryGirl.create :author, name: FFaker::Name.name, phone: FFaker::PhoneNumber.phone_number
-  			author["data"].push({type: "authors", id: i+1, attributes: {name: FFaker::Name.name, phone: FFaker::PhoneNumber.phone_number}})
+  			author["data"].push({type: "author", id: i+1, attributes: {name: i.even? ? '' : FFaker::Name.name, phone: FFaker::PhoneNumber.phone_number}})
   		end
 
   		put "/authors/batch_update", author.to_json, headers
@@ -136,7 +136,7 @@ RSpec.describe "Authors", type: :request do
     	author["data"]=[]
     	10.times do |i|
     		FactoryGirl.create :author, name: FFaker::Name.name, phone: FFaker::PhoneNumber.phone_number
-    		author["data"].push({type: "authors", id: i+1, attributes: {name: i.even? ? '' : FFaker::Name.name, phone: FFaker::PhoneNumber.phone_number}})
+    		author["data"].push({type: "author", id: i+1, attributes: {name: i >= 5 ? '' : FFaker::Name.name, phone: FFaker::PhoneNumber.phone_number}})
     	end
 
     	put "/authors/batch_update", author.to_json, headers
